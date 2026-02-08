@@ -1,0 +1,213 @@
+ health','vaccine'],
+                civil: ['rights','civil','freedom','speech','privacy','surveillance','amendment','constitutional','liberty','voting','discrimination'],
+                economic: ['tax','budget','spending','deficit','trade','tariff','labor','wage','employment','economy','inflation','banking']
+            }
+        };
+        
+        const state = { legislation: [], filtered: [], filters: { type: 'all', domain: 'all', risk: 'all', search: '' }, sort: 'recent' };
+        
+        // Demo data
+        function getDemoData() {
+            return [
+                { id: 'bill-119-hr-1001', type: 'bill', identifier: 'H.R.1001', title: 'Clean Energy Innovation and Deployment Act', summary: 'Accelerate clean energy development, reduce emissions, create green jobs.', sponsor: 'Rep. Smith, Jane [D-CA]', updated: '2025-02-01', status: 'In Committee', domains: { environment: 95, healthcare: 20, civil: 10, economic: 65 }, url: 'https://www.congress.gov/' },
+                { id: 'bill-119-s-502', type: 'bill', identifier: 'S.502', title: 'Affordable Healthcare Access Expansion Act', summary: 'Expand healthcare coverage, strengthen consumer protections.', sponsor: 'Sen. Johnson, Robert [D-NY]', updated: '2025-01-28', status: 'In Committee', domains: { environment: 5, healthcare: 98, civil: 30, economic: 55 }, url: 'https://www.congress.gov/' },
+                { id: 'bill-119-hr-888', type: 'bill', identifier: 'H.R.888', title: 'Digital Privacy Protection Act', summary: 'Establish data privacy protections, require algorithmic transparency.', sponsor: 'Rep. Chen, Michael [R-TX]', updated: '2025-02-02', status: 'Hearing Scheduled', domains: { environment: 0, healthcare: 15, civil: 92, economic: 40 }, url: 'https://www.congress.gov/' },
+                { id: 'bill-119-hr-1234', type: 'bill', identifier: 'H.R.1234', title: 'Small Business Tax Relief Act', summary: 'Tax relief for small businesses, simplified filing.', sponsor: 'Rep. Williams, Sarah [R-OH]', updated: '2025-01-30', status: 'In Committee', domains: { environment: 5, healthcare: 10, civil: 5, economic: 88 }, url: 'https://www.congress.gov/' },
+                { id: 'bill-119-s-789', type: 'bill', identifier: 'S.789', title: 'Water Infrastructure and Safety Act', summary: 'Invest in water infrastructure, ensure safe drinking water.', sponsor: 'Sen. Garcia, Maria [D-NM]', updated: '2025-02-03', status: 'Markup Complete', domains: { environment: 85, healthcare: 75, civil: 25, economic: 50 }, url: 'https://www.congress.gov/' },
+                { id: 'eo-2025-01234', type: 'executive-order', identifier: 'EO 14XXX', title: 'Strengthening American Energy Security', summary: 'Direct agencies to streamline energy project permitting.', sponsor: 'The White House', updated: '2025-01-25', status: 'In Effect', domains: { environment: 80, healthcare: 10, civil: 15, economic: 70 }, url: 'https://www.federalregister.gov/' },
+                { id: 'rule-2025-00567', type: 'rule', identifier: 'EPA-2025-0001', title: 'Air Quality Standards Review', summary: 'Proposed revisions to air quality standards for particulate matter.', sponsor: 'EPA', updated: '2025-01-20', status: 'Proposed Rule', domains: { environment: 98, healthcare: 85, civil: 20, economic: 55 }, url: 'https://www.federalregister.gov/', commentPeriod: { closes: '2025-03-20', url: 'https://www.regulations.gov/' } },
+                { id: 'rule-2025-00789', type: 'rule', identifier: 'HHS-2025-0042', title: 'Medicare Payment Rates FY2026', summary: 'Updates to Medicare reimbursement rates.', sponsor: 'HHS', updated: '2025-01-28', status: 'Proposed Rule', domains: { environment: 0, healthcare: 95, civil: 15, economic: 70 }, url: 'https://www.federalregister.gov/', commentPeriod: { closes: '2025-02-28', url: 'https://www.regulations.gov/' } },
+                { id: 'rule-2025-00345', type: 'rule', identifier: 'DOL-2025-0015', title: 'Overtime Eligibility Updates', summary: 'Proposed changes to overtime pay thresholds.', sponsor: 'Dept of Labor', updated: '2025-02-01', status: 'Proposed Rule', domains: { environment: 0, healthcare: 20, civil: 45, economic: 90 }, url: 'https://www.federalregister.gov/', commentPeriod: { closes: '2025-04-01', url: 'https://www.regulations.gov/' } }
+            ].map(item => {
+                const score = calcRisk(item.domains);
+                return { ...item, riskScore: score, riskLevel: getRiskLevel(score) };
+            });
+        }
+        
+        function calcRisk(domains) {
+            let score = 0;
+            for (const [d, w] of Object.entries(CONFIG.riskWeights)) score += (domains[d] || 0) * w;
+            return Math.round(score);
+        }
+        
+        function getRiskLevel(score) {
+            if (score >= 75) return 'critical';
+            if (score >= 55) return 'high';
+            if (score >= 35) return 'moderate';
+            if (score >= 15) return 'low';
+            return 'neutral';
+        }
+        
+        function init() {
+            state.legislation = getDemoData();
+            updateUI();
+            initEvents();
+            initParticles();
+            showToast('Loaded demo data', 'info');
+        }
+        
+        function updateUI() {
+            applyFilters();
+            updateStats();
+            updateRiskBars();
+            updateComments();
+            renderList();
+        }
+        
+        function applyFilters() {
+            let f = [...state.legislation];
+            if (state.filters.type !== 'all') f = f.filter(i => i.type === state.filters.type);
+            if (state.filters.domain !== 'all') f = f.filter(i => i.domains[state.filters.domain] > 30);
+            if (state.filters.risk !== 'all') f = f.filter(i => i.riskLevel === state.filters.risk);
+            if (state.filters.search) { const s = state.filters.search.toLowerCase(); f = f.filter(i => i.title.toLowerCase().includes(s) || i.summary.toLowerCase().includes(s) || i.identifier.toLowerCase().includes(s)); }
+            if (state.sort === 'recent') f.sort((a, b) => new Date(b.updated) - new Date(a.updated));
+            else if (state.sort === 'risk') f.sort((a, b) => b.riskScore - a.riskScore);
+            else if (state.sort === 'activity') f.sort((a, b) => Object.values(b.domains).reduce((x,y)=>x+y,0) - Object.values(a.domains).reduce((x,y)=>x+y,0));
+            state.filtered = f;
+        }
+        
+        function updateStats() {
+            const bills = state.legislation.filter(i => i.type === 'bill');
+            const orders = state.legislation.filter(i => i.type === 'executive-order' || i.type === 'rule');
+            const high = state.legislation.filter(i => i.riskLevel === 'critical' || i.riskLevel === 'high');
+            const comments = state.legislation.filter(i => i.commentPeriod);
+            document.getElementById('stat-bills').textContent = bills.length;
+            document.getElementById('stat-orders').textContent = orders.length;
+            document.getElementById('stat-highrisk').textContent = high.length;
+            document.getElementById('stat-comments').textContent = comments.length;
+            document.getElementById('count-bills').textContent = bills.length;
+            document.getElementById('count-orders').textContent = state.legislation.filter(i => i.type === 'executive-order').length;
+            document.getElementById('count-rules').textContent = state.legislation.filter(i => i.type === 'rule').length;
+            document.getElementById('feed-count').textContent = `${state.filtered.length} of ${state.legislation.length} items`;
+        }
+        
+        function updateRiskBars() {
+            const domains = { environment: 0, healthcare: 0, civil: 0, economic: 0 };
+            state.legislation.forEach(i => { for (const d of Object.keys(domains)) domains[d] += i.domains[d] || 0; });
+            const count = state.legislation.length || 1;
+            ['env','health','civil','econ'].forEach((short, idx) => {
+                const full = ['environment','healthcare','civil','economic'][idx];
+                const avg = Math.round(domains[full] / count);
+                document.getElementById(`risk-${short}`).textContent = avg + '%';
+                document.getElementById(`risk-bar-${short}`).style.width = avg + '%';
+            });
+        }
+        
+        function updateComments() {
+            const container = document.getElementById('comment-periods');
+            const items = state.legislation.filter(i => i.commentPeriod).sort((a,b) => new Date(a.commentPeriod.closes) - new Date(b.commentPeriod.closes)).slice(0, 3);
+            if (!items.length) { container.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">No open comment periods.</p>'; return; }
+            container.innerHTML = items.map(i => {
+                const days = Math.ceil((new Date(i.commentPeriod.closes) - Date.now()) / 86400000);
+                const urgent = days <= 7;
+                return `<div class="comment-item${urgent?' urgent':''}"><div class="comment-item-title">${esc(trunc(i.title,60))}</div><div class="comment-item-meta"><span class="comment-item-deadline">${days <= 0 ? 'Closed' : days + ' days left'}</span><a href="${i.commentPeriod.url}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;font-size:0.75rem;">Submit →</a></div></div>`;
+            }).join('');
+        }
+        
+        function renderList() {
+            const container = document.getElementById('legislation-list');
+            if (!state.filtered.length) { container.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--text-muted);"><p>No items match filters.</p><button onclick="resetFilters()" class="btn" style="margin-top:1rem;">Reset Filters</button></div>'; return; }
+            container.innerHTML = state.filtered.map(item => {
+                const typeLabel = item.type === 'bill' ? 'Bill' : item.type === 'executive-order' ? 'Exec Order' : 'Rule';
+                const topDomains = Object.entries(item.domains).sort((a,b) => b[1] - a[1]).filter(([_,v]) => v > 20).slice(0, 2);
+                return `<article class="card ${item.riskLevel}" data-id="${item.id}">
+                    <div class="card-header"><div><div class="card-id">${esc(item.identifier)}</div><h3 class="card-title">${esc(item.title)}</h3></div><span class="badge ${item.type}">${typeLabel}</span></div>
+                    <p class="card-summary">${esc(item.summary)}</p>
+                    <div class="risk-container"><div class="risk-circle ${item.riskLevel}"><span class="risk-value">${item.riskScore}</span><span class="risk-label">Risk</span></div><div class="risk-breakdown"><div class="risk-item"><span class="risk-dot env"></span><strong>${item.domains.environment||0}</strong><span>Env</span></div><div class="risk-item"><span class="risk-dot health"></span><strong>${item.domains.healthcare||0}</strong><span>Health</span></div><div class="risk-item"><span class="risk-dot civil"></span><strong>${item.domains.civil||0}</strong><span>Rights</span></div><div class="risk-item"><span class="risk-dot econ"></span><strong>${item.domains.economic||0}</strong><span>Econ</span></div></div></div>
+                    <div class="card-meta"><div class="tags">${topDomains.map(([d]) => `<span class="tag ${d==='environment'?'env':d==='healthcare'?'health':d==='civil'?'civil':'econ'}">${cap(d)}</span>`).join('')}</div><div class="card-info"><span class="card-info-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>${fmtDate(item.updated)}</span><span class="card-info-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${esc(trunc(item.sponsor,20))}</span></div></div>
+                    <div class="card-actions"><a href="${item.url}" target="_blank" rel="noopener" class="card-btn primary" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>View Source</a>${item.commentPeriod ? `<a href="${item.commentPeriod.url}" target="_blank" rel="noopener" class="card-btn" onclick="event.stopPropagation()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Comment</a>` : ''}<button class="card-btn" onclick="event.stopPropagation(); openModal('${item.id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>Details</button></div>
+                </article>`;
+            }).join('');
+            container.querySelectorAll('.card').forEach(c => c.addEventListener('click', e => { if (!e.target.closest('a') && !e.target.closest('button')) openModal(c.dataset.id); }));
+        }
+        
+        function openModal(id) {
+            const item = state.legislation.find(i => i.id === id);
+            if (!item) return;
+            const typeLabel = item.type === 'bill' ? 'Bill' : item.type === 'executive-order' ? 'Executive Order' : 'Agency Rule';
+            document.getElementById('modal-header-content').innerHTML = `<div><span class="badge ${item.type}" style="margin-bottom:0.5rem;display:inline-block;">${typeLabel}</span><div class="card-id">${esc(item.identifier)}</div><h2 style="font-family:var(--font-display);font-size:1.4rem;">${esc(item.title)}</h2></div>`;
+            document.getElementById('modal-body').innerHTML = `<div style="display:flex;flex-direction:column;gap:1.5rem;"><div><h4 style="font-size:0.85rem;color:var(--text-muted);text-transform:uppercase;margin-bottom:0.5rem;">Summary</h4><p style="color:var(--text-secondary);line-height:1.7;">${esc(item.summary)}</p></div><div class="risk-container"><div class="risk-circle ${item.riskLevel}"><span class="risk-value">${item.riskScore}</span><span class="risk-label">Risk</span></div><div class="risk-breakdown" style="grid-template-columns:1fr;"><div class="risk-item" style="justify-content:space-between;"><span><span class="risk-dot env"></span>Environment</span><strong>${item.domains.environment||0}/100</strong></div><div class="risk-item" style="justify-content:space-between;"><span><span class="risk-dot health"></span>Healthcare</span><strong>${item.domains.healthcare||0}/100</strong></div><div class="risk-item" style="justify-content:space-between;"><span><span class="risk-dot civil"></span>Civil Rights</span><strong>${item.domains.civil||0}/100</strong></div><div class="risk-item" style="justify-content:space-between;"><span><span class="risk-dot econ"></span>Economic</span><strong>${item.domains.economic||0}/100</strong></div></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;"><div><h4 style="font-size:0.85rem;color:var(--text-muted);text-transform:uppercase;margin-bottom:0.5rem;">Sponsor</h4><p>${esc(item.sponsor)}</p></div><div><h4 style="font-size:0.85rem;color:var(--text-muted);text-transform:uppercase;margin-bottom:0.5rem;">Status</h4><p>${esc(item.status)}</p></div><div><h4 style="font-size:0.85rem;color:var(--text-muted);text-transform:uppercase;margin-bottom:0.5rem;">Updated</h4><p>${fmtDate(item.updated, true)}</p></div>${item.commentPeriod ? `<div><h4 style="font-size:0.85rem;color:var(--text-muted);text-transform:uppercase;margin-bottom:0.5rem;">Comments Close</h4><p style="color:var(--risk-high);font-weight:600;">${fmtDate(item.commentPeriod.closes, true)}</p></div>` : ''}</div><div style="display:flex;gap:0.75rem;flex-wrap:wrap;"><a href="${item.url}" target="_blank" rel="noopener" class="card-btn primary" style="flex:1;justify-content:center;">View Official Source</a>${item.commentPeriod ? `<a href="${item.commentPeriod.url}" target="_blank" rel="noopener" class="card-btn" style="flex:1;justify-content:center;background:var(--environment);border-color:var(--environment);color:white;">Submit Comment</a>` : ''}<a href="action-center.html#contact" class="card-btn" style="flex:1;justify-content:center;">Contact Your Rep</a></div></div>`;
+            document.getElementById('modal-overlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeModal() {
+            document.getElementById('modal-overlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        function initEvents() {
+            document.getElementById('refresh-btn').addEventListener('click', () => { showToast('Data refreshed', 'success'); });
+            let timeout;
+            document.getElementById('search-input').addEventListener('input', e => { clearTimeout(timeout); timeout = setTimeout(() => { state.filters.search = e.target.value; updateUI(); }, 300); });
+            document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
+                const f = c.dataset.filter, v = c.dataset.value;
+                document.querySelectorAll(`.chip[data-filter="${f}"]`).forEach(x => x.classList.remove('active'));
+                c.classList.add('active');
+                state.filters[f] = v;
+                updateUI();
+            }));
+            document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+                t.classList.add('active');
+                state.sort = t.dataset.sort;
+                updateUI();
+            }));
+            document.getElementById('modal-close').addEventListener('click', closeModal);
+            document.getElementById('modal-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+            document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+        }
+        
+        window.resetFilters = function() {
+            state.filters = { type: 'all', domain: 'all', risk: 'all', search: '' };
+            document.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.dataset.value === 'all'));
+            document.getElementById('search-input').value = '';
+            updateUI();
+        };
+        
+        window.openModal = openModal;
+        
+        function initParticles() {
+            const canvas = document.getElementById('particles');
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+            function create() { return { x: Math.random() * canvas.width, y: Math.random() * canvas.height, vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3, r: Math.random() * 2 + 1, color: ['rgba(16,185,129,0.5)','rgba(59,130,246,0.5)','rgba(245,158,11,0.4)','rgba(6,182,212,0.5)'][Math.floor(Math.random()*4)] }; }
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    p.x += p.vx; p.y += p.vy;
+                    if (p.x < 0) p.x = canvas.width; if (p.x > canvas.width) p.x = 0;
+                    if (p.y < 0) p.y = canvas.height; if (p.y > canvas.height) p.y = 0;
+                    ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fillStyle = p.color; ctx.fill();
+                });
+                particles.forEach((p1, i) => particles.slice(i + 1).forEach(p2 => {
+                    const d = Math.hypot(p1.x - p2.x, p1.y - p2.y);
+                    if (d < 120) { ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.strokeStyle = `rgba(6,182,212,${0.1*(1-d/120)})`; ctx.lineWidth = 0.5; ctx.stroke(); }
+                }));
+                requestAnimationFrame(animate);
+            }
+            window.addEventListener('resize', resize);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) { resize(); particles = Array(40).fill(null).map(create); animate(); }
+        }
+        
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${type === 'success' ? '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>' : type === 'error' ? '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>' : '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>'}</svg><span>${esc(msg)}</span>`;
+            container.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.add('show'));
+            setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 4000);
+        }
+        
+        function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+        function trunc(s, n) { return s && s.length > n ? s.slice(0, n) + '...' : s; }
+        function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+        function fmtDate(d, full) { if (!d) return '--'; const dt = new Date(d); return full ? dt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
+        
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+    })();
+    </script>
+</body>
+</html>
