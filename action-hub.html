@@ -1,97 +1,193 @@
-="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                                <div class="action-link-text"><strong>5 Calls Scripts</strong><span>Ready-made calling scripts</span></div>
-                            </div>
-                            <span class="action-link-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
-                        </a>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Action Hub | Democracy Quest</title>
+    <meta name="description" content="Take meaningful civic action. Contact representatives, submit public comments, register to vote, and earn XP for democratic participation.">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Spectral:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --void: #030712; --nebula-deep: #0c1222; --nebula: #111827;
+            --stellar-dust: #1e293b; --cosmic-gray: #334155;
+            --starlight: #f1f5f9; --moonbeam: #cbd5e1; --comet-trail: #94a3b8;
+            --earth-glow: #34d399; --earth-dim: rgba(52,211,153,0.15);
+            --pulse-blue: #60a5fa; --pulse-dim: rgba(96,165,250,0.15);
+            --torch-amber: #fbbf24; --torch-dim: rgba(251,191,36,0.15);
+            --forge-violet: #a78bfa; --forge-dim: rgba(167,139,250,0.15);
+            --xp-gold: #fcd34d; --xp-glow: rgba(252,211,77,0.3);
+            --accent-cyan: #22d3ee;
+            --font-display: 'Spectral', Georgia, serif;
+            --font-body: 'Space Grotesk', system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --space-atom: 0.5rem; --space-molecule: 1rem; --space-cell: 1.618rem; --space-organ: 2.618rem;
+            --radius-tight: 6px; --radius-normal: 12px; --radius-relaxed: 20px; --radius-orbital: 9999px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--font-body); background: var(--void); color: var(--starlight); line-height: 1.6; min-height: 100vh; }
+        
+        .nebula-gradient { position: fixed; inset: 0; z-index: 0; pointer-events: none; background: radial-gradient(ellipse 80% 50% at 20% 30%, rgba(251,191,36,0.05) 0%, transparent 50%), radial-gradient(ellipse 60% 40% at 80% 70%, rgba(52,211,153,0.06) 0%, transparent 50%); }
+        .app-container { position: relative; z-index: 2; min-height: 100vh; }
+        
+        .main-header { position: sticky; top: 0; z-index: 100; background: rgba(12,18,34,0.9); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(148,163,184,0.1); }
+        .header-content { max-width: 1400px; margin: 0 auto; padding: var(--space-molecule) var(--space-cell); display: flex; align-items: center; justify-content: space-between; gap: var(--space-cell); flex-wrap: wrap; }
+        .logo-cluster { display: flex; align-items: center; gap: var(--space-molecule); text-decoration: none; color: inherit; }
+        .logo-emblem { width: 44px; height: 44px; background: linear-gradient(135deg, var(--accent-cyan), var(--earth-glow)); border-radius: var(--radius-normal); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+        .logo-emblem::before { content: ''; position: absolute; inset: 2px; background: var(--nebula-deep); border-radius: calc(var(--radius-normal) - 2px); }
+        .logo-emblem svg { position: relative; width: 24px; height: 24px; stroke: var(--accent-cyan); fill: none; stroke-width: 1.5; }
+        .logo-text h1 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; line-height: 1.1; }
+        .logo-text span { font-size: 0.65rem; color: var(--comet-trail); text-transform: uppercase; letter-spacing: 0.12em; }
+        
+        nav { display: flex; gap: 0.25rem; }
+        nav a { padding: var(--space-atom) var(--space-molecule); color: var(--moonbeam); text-decoration: none; border-radius: var(--radius-tight); font-size: 0.9rem; font-weight: 500; transition: all 0.2s; display: flex; align-items: center; gap: var(--space-atom); }
+        nav a:hover { color: var(--starlight); background: rgba(148,163,184,0.1); }
+        nav a.active { background: linear-gradient(135deg, rgba(34,211,238,0.2), rgba(52,211,153,0.1)); color: var(--accent-cyan); }
+        nav a svg { width: 18px; height: 18px; }
+        
+        main { max-width: 1400px; margin: 0 auto; padding: var(--space-cell); }
+        
+        .hero { text-align: center; margin-bottom: var(--space-organ); padding: var(--space-organ) 0; }
+        .hero h1 { font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3rem); font-weight: 700; margin-bottom: var(--space-molecule); }
+        .hero h1 .gradient { background: linear-gradient(135deg, var(--torch-amber), var(--earth-glow)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero p { font-size: 1.1rem; color: var(--moonbeam); max-width: 600px; margin: 0 auto; }
+        
+        .xp-banner { background: linear-gradient(90deg, var(--xp-glow), rgba(251,191,36,0.1)); border: 1px solid rgba(252,211,77,0.3); border-radius: var(--radius-normal); padding: var(--space-molecule) var(--space-cell); margin-bottom: var(--space-organ); display: flex; align-items: center; justify-content: center; gap: var(--space-molecule); text-align: center; flex-wrap: wrap; }
+        .xp-banner svg { width: 24px; height: 24px; color: var(--xp-gold); flex-shrink: 0; }
+        .xp-banner span { color: var(--xp-gold); font-weight: 600; }
+        
+        .actions-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--space-cell); margin-bottom: var(--space-organ); }
+        
+        .action-card { background: var(--nebula); border: 1px solid rgba(148,163,184,0.1); border-radius: var(--radius-relaxed); padding: var(--space-cell); position: relative; overflow: hidden; transition: all 0.3s; }
+        .action-card:hover { border-color: rgba(148,163,184,0.25); transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+        .action-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
+        .action-card.contact::before { background: var(--pulse-blue); }
+        .action-card.comment::before { background: var(--earth-glow); }
+        .action-card.vote::before { background: var(--torch-amber); }
+        .action-card.organize::before { background: var(--forge-violet); }
+        
+        .action-icon { width: 56px; height: 56px; border-radius: var(--radius-normal); display: flex; align-items: center; justify-content: center; margin-bottom: var(--space-molecule); }
+        .action-icon svg { width: 28px; height: 28px; }
+        .action-card.contact .action-icon { background: var(--pulse-dim); color: var(--pulse-blue); }
+        .action-card.comment .action-icon { background: var(--earth-dim); color: var(--earth-glow); }
+        .action-card.vote .action-icon { background: var(--torch-dim); color: var(--torch-amber); }
+        .action-card.organize .action-icon { background: var(--forge-dim); color: var(--forge-violet); }
+        
+        .action-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: var(--space-atom); gap: var(--space-atom); flex-wrap: wrap; }
+        .action-title { font-family: var(--font-display); font-size: 1.35rem; font-weight: 600; }
+        .xp-badge { display: flex; align-items: center; gap: 4px; padding: 4px 10px; background: var(--xp-glow); border-radius: var(--radius-orbital); font-family: var(--font-mono); font-size: 0.8rem; font-weight: 600; color: var(--xp-gold); white-space: nowrap; }
+        .xp-badge svg { width: 14px; height: 14px; }
+        
+        .action-desc { font-size: 0.95rem; color: var(--moonbeam); margin-bottom: var(--space-cell); line-height: 1.7; }
+        
+        .action-links { display: flex; flex-direction: column; gap: var(--space-atom); }
+        .action-link { display: flex; align-items: center; justify-content: space-between; padding: var(--space-molecule); background: var(--stellar-dust); border: 1px solid rgba(148,163,184,0.1); border-radius: var(--radius-normal); text-decoration: none; color: var(--starlight); transition: all 0.2s; }
+        .action-link:hover { background: var(--cosmic-gray); border-color: rgba(148,163,184,0.2); transform: translateX(4px); }
+        .action-link-info { display: flex; align-items: center; gap: var(--space-molecule); }
+        .action-link-info svg { width: 20px; height: 20px; color: var(--accent-cyan); flex-shrink: 0; }
+        .action-link-text strong { display: block; font-size: 0.95rem; margin-bottom: 2px; }
+        .action-link-text span { font-size: 0.8rem; color: var(--comet-trail); }
+        .action-link-arrow { color: var(--comet-trail); flex-shrink: 0; }
+        .action-link-arrow svg { width: 18px; height: 18px; }
+        
+        .tips-section { background: var(--nebula); border: 1px solid rgba(148,163,184,0.1); border-radius: var(--radius-relaxed); padding: var(--space-cell); margin-bottom: var(--space-organ); }
+        .tips-title { font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; margin-bottom: var(--space-cell); display: flex; align-items: center; gap: var(--space-atom); }
+        .tips-title svg { width: 22px; height: 22px; color: var(--xp-gold); }
+        
+        .tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-cell); }
+        .tip { display: flex; gap: var(--space-molecule); padding: var(--space-molecule); background: var(--stellar-dust); border-radius: var(--radius-normal); }
+        .tip-num { width: 32px; height: 32px; background: var(--accent-cyan); color: var(--void); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; }
+        .tip-content h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; }
+        .tip-content p { font-size: 0.85rem; color: var(--moonbeam); line-height: 1.6; }
+        
+        footer { background: var(--nebula); border-top: 1px solid rgba(148,163,184,0.1); padding: var(--space-organ) var(--space-cell); margin-top: var(--space-organ); }
+        .footer-content { max-width: 1400px; margin: 0 auto; }
+        .zero-harm { background: linear-gradient(90deg, var(--earth-dim), var(--stellar-dust)); border: 1px solid rgba(52,211,153,0.2); border-radius: var(--radius-normal); padding: var(--space-cell); margin-bottom: var(--space-cell); }
+        .zero-harm h4 { font-size: 0.9rem; font-weight: 600; color: var(--earth-glow); margin-bottom: var(--space-atom); display: flex; align-items: center; gap: var(--space-atom); }
+        .zero-harm h4 svg { width: 18px; height: 18px; }
+        .zero-harm p { font-size: 0.85rem; color: var(--moonbeam); line-height: 1.7; }
+        .footer-bottom { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-molecule); padding-top: var(--space-cell); border-top: 1px solid rgba(148,163,184,0.1); font-size: 0.85rem; color: var(--comet-trail); }
+        .footer-bottom a { color: var(--moonbeam); text-decoration: none; }
+        .footer-bottom a:hover { color: var(--starlight); }
+        
+        @media (max-width: 768px) { nav a span { display: none; } .actions-grid { grid-template-columns: 1fr; } }
+        :focus-visible { outline: 2px solid var(--accent-cyan); outline-offset: 2px; }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+    </style>
+</head>
+<body>
+    <div class="nebula-gradient" aria-hidden="true"></div>
+    <div class="app-container">
+        <header class="main-header">
+            <div class="header-content">
+                <a href="index.html" class="logo-cluster">
+                    <div class="logo-emblem"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+                    <div class="logo-text"><h1>Democracy Quest</h1><span>Civic Mastery Platform</span></div>
+                </a>
+                <nav>
+                    <a href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg><span>Command</span></a>
+                    <a href="academy.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg><span>Academy</span></a>
+                    <a href="action-hub.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span>Action</span></a>
+                    <a href="achievements.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg><span>Achievements</span></a>
+                </nav>
+            </div>
+        </header>
+        
+        <main>
+            <section class="hero">
+                <h1>Take <span class="gradient">Action</span></h1>
+                <p>Democracy works when citizens participate. Every action you take earns XP and makes your voice heard. Phone calls earn 2x XP!</p>
+            </section>
+            
+            <div class="xp-banner">
+                <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <span>📞 Phone Call Bonus Active: 2x XP for calling representatives!</span>
+            </div>
+            
+            <section class="actions-grid">
+                <div class="action-card contact">
+                    <div class="action-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
+                    <div class="action-header"><h3 class="action-title">Contact Representatives</h3><span class="xp-badge"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>+50-100 XP</span></div>
+                    <p class="action-desc">Direct communication with your elected officials is one of the most powerful tools you have. Congressional offices track every call—your voice matters.</p>
+                    <div class="action-links">
+                        <a href="https://www.house.gov/representatives/find-your-representative" target="_blank" rel="noopener" class="action-link"><div class="action-link-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><div class="action-link-text"><strong>Find Your House Rep</strong><span>Look up by ZIP code</span></div></div><span class="action-link-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span></a>
+                        <a href="https://www.senate.gov/senators/senators-contact.htm" target="_blank" rel="noopener" class="action-link"><div class="action-link-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><div class="action-link-text"><strong>Contact Your Senators</strong><span>Each state has two senators</span></div></div><span class="action-link-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span></a>
+                        <a href="https://5calls.org/" target="_blank" rel="noopener" class="action-link"><div class="action-link-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><div class="action-link-text"><strong>5 Calls Scripts</strong><span>Ready-made calling scripts</span></div></div><span class="action-link-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span></a>
                     </div>
                 </div>
                 
                 <div class="action-card comment">
                     <div class="action-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
-                    <div class="action-header">
-                        <h3 class="action-title">Submit Public Comments</h3>
-                        <span class="xp-badge"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>+75 XP</span>
-                    </div>
+                    <div class="action-header"><h3 class="action-title">Submit Public Comments</h3><span class="xp-badge"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>+75 XP</span></div>
                     <p class="action-desc">Federal agencies must legally consider public comments before finalizing rules. Your input becomes part of the official record and can influence policy.</p>
                     <div class="action-links">
-                        <a href="https://www.regulations.gov/" target="_blank" rel="noopener" class="action-link">
-                            <div class="action-link-info">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                                <div class="action-link-text"><strong>Regulations.gov</strong><span>Official federal comment portal</span></div>
-                            </div>
-                            <span class="action-link-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
-                        </a>
-                        <a href="https://www.federalregister.gov/public-inspection" target="_blank" rel="noopener" class="action-link">
-                            <div class="action-link-info">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                                <div class="action-link-text"><strong>Federal Register</strong><span>Browse proposed rules</span></div>
-                            </div>
-                            <span class="action-link-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
-                        </a>
+                        <a href="https://www.regulations.gov/" target="_blank" rel="noopener" class="action-link"><div class="action-link-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><div class="action-link-text"><strong>Regulations.gov</strong><span>Official federal comment portal</span></div></div><span class="action-link-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span></a>
+                        <a href="https://www.federalregister.gov/public-inspection" target="_blank" rel="noopener" class="action-link"><div class="action-link-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><div class="action-link-text"><strong>Federal Register</strong><span>Browse proposed rules</span></div></div><span class="action-link-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span></a>
                     </div>
                 </div>
                 
                 <div class="action-card vote">
                     <div class="action-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
-                    <div class="action-header">
-                        <h3 class="action-title">Register & Vote</h3>
-                        <span class="xp-badge"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>+150 XP</span>
-                    </div>
+                    <div class="action-header"><h3 class="action-title">Register & Vote</h3><span class="xp-badge"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>+150 XP</span></div>
                     <p class="action-desc">Voting is the foundation of democracy. Make sure you're registered, know your polling place, and understand what's on your ballot.</p>
                     <div class="action-links">
-                        <a href="https://www.usa.gov/register-to-vote" target="_blank" rel="noopener" class="action-link">
-                            <div class="action-link-info">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
-                                <div class="action-link-text"><strong>Register to Vote</strong><span>Check status or register online</span></div>
-                            </div>
-                            <span class="action-link-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
-                        </a>
-                        <a href="https://www.vote.org/polling-place-locator/" target="_blank" rel="noopener" class="action-link">
-                            <div class="action-link-info">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                                <div class="action-link-text"><strong>Find Polling Place</strong><span>Locate where to vote</span></div>
-                            </div>
-                            <span class="action-link-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
-                        </a>
-                        <a href="https://www.ballotready.org/" target="_blank" rel="noopener" class="action-link">
-                            <div class="action-link-info">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M9 15l2 2 4-4"/></svg>
-                                <div class="action-link-text"><strong>BallotReady</strong><span>Research your ballot</span></div>
-                            </div>
-                            <span class="action-link-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
-                        </a>
+                        <a href="https://www.usa.gov/register-to-vote" target="_blank" rel="noopener" class="action-link"><div class="action-link-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg><div class="action-link-text"><strong>Register to Vote</strong><span>Check status or register online</span></div></div><span class="action-link-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span></a>
+                        <a href="https://www.vote.org/polling-place-locator/" target="_blank" rel="noopener" class="action-link"><div class="action-link-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><div class="action-link-text"><strong>Find Polling Place</strong><span>Locate where to vote</span></div></div><span class="action-link-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span></a>
+                        <a href="https://www.ballotready.org/" target="_blank" rel="noopener" class="action-link"><div class="action-link-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M9 15l2 2 4-4"/></svg><div class="action-link-text"><strong>BallotReady</strong><span>Research your ballot</span></div></div><span class="action-link-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span></a>
                     </div>
                 </div>
                 
                 <div class="action-card organize">
                     <div class="action-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-                    <div class="action-header">
-                        <h3 class="action-title">Organize Locally</h3>
-                        <span class="xp-badge"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>+100 XP</span>
-                    </div>
+                    <div class="action-header"><h3 class="action-title">Organize Locally</h3><span class="xp-badge"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>+100 XP</span></div>
                     <p class="action-desc">Collective action amplifies individual voices. Connect with local organizations and community groups working on issues you care about.</p>
                     <div class="action-links">
-                        <a href="https://indivisible.org/groups" target="_blank" rel="noopener" class="action-link">
-                            <div class="action-link-info">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
-                                <div class="action-link-text"><strong>Indivisible Groups</strong><span>Find local civic groups</span></div>
-                            </div>
-                            <span class="action-link-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
-                        </a>
-                        <a href="https://www.mobilize.us/" target="_blank" rel="noopener" class="action-link">
-                            <div class="action-link-info">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                                <div class="action-link-text"><strong>Mobilize Events</strong><span>Find volunteer opportunities</span></div>
-                            </div>
-                            <span class="action-link-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
-                        </a>
-                        <a href="https://townhallproject.com/" target="_blank" rel="noopener" class="action-link">
-                            <div class="action-link-info">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg>
-                                <div class="action-link-text"><strong>Town Hall Project</strong><span>Find local town halls</span></div>
-                            </div>
-                            <span class="action-link-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
-                        </a>
+                        <a href="https://indivisible.org/groups" target="_blank" rel="noopener" class="action-link"><div class="action-link-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/></svg><div class="action-link-text"><strong>Indivisible Groups</strong><span>Find local civic groups</span></div></div><span class="action-link-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span></a>
+                        <a href="https://www.mobilize.us/" target="_blank" rel="noopener" class="action-link"><div class="action-link-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><div class="action-link-text"><strong>Mobilize Events</strong><span>Find volunteer opportunities</span></div></div><span class="action-link-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span></a>
+                        <a href="https://townhallproject.com/" target="_blank" rel="noopener" class="action-link"><div class="action-link-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg><div class="action-link-text"><strong>Town Hall Project</strong><span>Find local town halls</span></div></div><span class="action-link-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span></a>
                     </div>
                 </div>
             </section>
@@ -99,48 +195,12 @@
             <section class="tips-section">
                 <h3 class="tips-title"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Pro Tips for Maximum Impact</h3>
                 <div class="tips-grid">
-                    <div class="tip">
-                        <div class="tip-num">1</div>
-                        <div class="tip-content">
-                            <h4>Be Specific & Personal</h4>
-                            <p>Share your personal story and how the issue affects you directly. Generic messages are less impactful than authentic experiences.</p>
-                        </div>
-                    </div>
-                    <div class="tip">
-                        <div class="tip-num">2</div>
-                        <div class="tip-content">
-                            <h4>Phone Calls Win</h4>
-                            <p>A brief, polite phone call is often 10x more effective than email. Call during business hours and keep it under 2 minutes.</p>
-                        </div>
-                    </div>
-                    <div class="tip">
-                        <div class="tip-num">3</div>
-                        <div class="tip-content">
-                            <h4>Reference Bill Numbers</h4>
-                            <p>Always mention the specific bill number (H.R.1234 or S.567). This helps staff route your feedback to the right team.</p>
-                        </div>
-                    </div>
-                    <div class="tip">
-                        <div class="tip-num">4</div>
-                        <div class="tip-content">
-                            <h4>Comment Early</h4>
-                            <p>Submit public comments early in the comment period. Use facts, cite sources, and suggest specific alternatives when opposing something.</p>
-                        </div>
-                    </div>
-                    <div class="tip">
-                        <div class="tip-num">5</div>
-                        <div class="tip-content">
-                            <h4>Follow Up</h4>
-                            <p>Civic engagement is ongoing. Follow up on concerns, attend town halls, and maintain relationships with your representatives' offices.</p>
-                        </div>
-                    </div>
-                    <div class="tip">
-                        <div class="tip-num">6</div>
-                        <div class="tip-content">
-                            <h4>Organize Together</h4>
-                            <p>Collective action amplifies your voice. Join groups, coordinate messaging, and show up together. Numbers matter to legislators.</p>
-                        </div>
-                    </div>
+                    <div class="tip"><div class="tip-num">1</div><div class="tip-content"><h4>Be Specific & Personal</h4><p>Share your personal story and how the issue affects you directly. Generic messages are less impactful than authentic experiences.</p></div></div>
+                    <div class="tip"><div class="tip-num">2</div><div class="tip-content"><h4>Phone Calls Win</h4><p>A brief, polite phone call is often 10x more effective than email. Call during business hours and keep it under 2 minutes.</p></div></div>
+                    <div class="tip"><div class="tip-num">3</div><div class="tip-content"><h4>Reference Bill Numbers</h4><p>Always mention the specific bill number (H.R.1234 or S.567). This helps staff route your feedback to the right team.</p></div></div>
+                    <div class="tip"><div class="tip-num">4</div><div class="tip-content"><h4>Comment Early</h4><p>Submit public comments early in the comment period. Use facts, cite sources, and suggest specific alternatives when opposing something.</p></div></div>
+                    <div class="tip"><div class="tip-num">5</div><div class="tip-content"><h4>Follow Up</h4><p>Civic engagement is ongoing. Follow up on concerns, attend town halls, and maintain relationships with your representatives' offices.</p></div></div>
+                    <div class="tip"><div class="tip-num">6</div><div class="tip-content"><h4>Organize Together</h4><p>Collective action amplifies your voice. Join groups, coordinate messaging, and show up together. Numbers matter to legislators.</p></div></div>
                 </div>
             </section>
         </main>
