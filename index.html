@@ -1,0 +1,358 @@
+                            <a href="https://www.regulations.gov/" target="_blank" rel="noopener" class="bill-action-btn" onclick="event.stopPropagation(); awardXP(25, 'Opened comment portal');">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                                Comment
+                            </a>
+                            ` : ''}
+                            <button class="bill-action-btn" onclick="event.stopPropagation(); trackBill('${bill.id}');">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                Track
+                            </button>
+                        </div>
+                    </div>
+                </article>
+                `;
+            }).join('');
+            
+            // Card click handlers for XP
+            grid.querySelectorAll('.bill-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    awardXP(5, 'Reviewed legislation details');
+                });
+            });
+        }
+        
+        function updateFilterCounts() {
+            const counts = {
+                all: LEGISLATION.length,
+                bill: LEGISLATION.filter(b => b.type === 'bill').length,
+                'executive-order': LEGISLATION.filter(b => b.type === 'executive-order').length,
+                rule: LEGISLATION.filter(b => b.type === 'rule').length
+            };
+            
+            document.querySelectorAll('.filter-chip').forEach(chip => {
+                const filter = chip.dataset.filter;
+                const countEl = chip.querySelector('.count');
+                if (countEl) countEl.textContent = counts[filter] || 0;
+            });
+        }
+        
+        // ═══════════════════════════════════════════════════════════════════════
+        // XP & LEVELING SYSTEM
+        // ═══════════════════════════════════════════════════════════════════════
+        
+        window.awardXP = function(amount, reason) {
+            gameState.player.xp += amount;
+            
+            // Check for level up
+            while (gameState.player.xp >= gameState.player.xpToNext) {
+                gameState.player.xp -= gameState.player.xpToNext;
+                gameState.player.level++;
+                gameState.player.xpToNext = Math.floor(gameState.player.xpToNext * 1.5);
+                showToast(`🎉 Level Up! You're now Level ${gameState.player.level}!`, 'success');
+            }
+            
+            updatePlayerUI();
+            saveGameState();
+            showXPPopup(amount, reason);
+        };
+        
+        function showXPPopup(amount, reason) {
+            const popup = document.createElement('div');
+            popup.className = 'xp-popup';
+            popup.innerHTML = `<span class="xp-amount">+${amount} XP</span><span class="xp-reason">${reason}</span>`;
+            popup.style.cssText = `
+                position: fixed;
+                bottom: 100px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: linear-gradient(135deg, rgba(252,211,77,0.9), rgba(251,191,36,0.9));
+                color: #030712;
+                padding: 12px 24px;
+                border-radius: 50px;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                z-index: 10000;
+                animation: xpPopup 2s ease-out forwards;
+                box-shadow: 0 4px 20px rgba(252,211,77,0.4);
+            `;
+            document.body.appendChild(popup);
+            
+            setTimeout(() => popup.remove(), 2000);
+        }
+        
+        // Add animation keyframes
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes xpPopup {
+                0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+                15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+                85% { opacity: 1; transform: translateX(-50%) translateY(0); }
+                100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        function updatePlayerUI() {
+            // Update XP bar
+            const xpPercent = (gameState.player.xp / gameState.player.xpToNext) * 100;
+            document.getElementById('xp-progress').style.width = xpPercent + '%';
+            
+            // Update header stats
+            document.getElementById('header-xp').textContent = gameState.player.xp.toLocaleString();
+            document.getElementById('header-level').textContent = gameState.player.level;
+            document.getElementById('header-streak').textContent = gameState.player.streak;
+            
+            // Update player card
+            const xpFill = document.querySelector('.xp-fill');
+            if (xpFill) xpFill.style.width = xpPercent + '%';
+            
+            const xpCurrent = document.querySelector('.xp-current');
+            if (xpCurrent) xpCurrent.textContent = gameState.player.xp.toLocaleString();
+            
+            const xpNeeded = document.querySelector('.xp-needed');
+            if (xpNeeded) xpNeeded.textContent = gameState.player.xpToNext.toLocaleString() + ' XP';
+            
+            // Update stat boxes
+            document.getElementById('bills-tracked').textContent = gameState.stats.billsTracked;
+            document.getElementById('actions-taken').textContent = gameState.stats.actionsTaken;
+            document.getElementById('lessons-done').textContent = gameState.stats.lessonsDone;
+            document.getElementById('day-streak').textContent = gameState.player.streak;
+            
+            // Update player level badge
+            const badge = document.querySelector('.player-avatar-badge');
+            if (badge) badge.textContent = gameState.player.level;
+        }
+        
+        window.trackBill = function(billId) {
+            gameState.stats.billsTracked++;
+            awardXP(15, 'Tracked legislation');
+            showToast('📋 Bill added to your tracking list!', 'info');
+            saveGameState();
+        };
+        
+        // ═══════════════════════════════════════════════════════════════════════
+        // QUEST SYSTEM
+        // ═══════════════════════════════════════════════════════════════════════
+        
+        function initQuests() {
+            document.querySelectorAll('.quest-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const questId = item.dataset.quest;
+                    if (gameState.quests.daily[questId] && !gameState.quests.daily[questId].completed) {
+                        completeQuest(questId, item);
+                    }
+                });
+            });
+        }
+        
+        function completeQuest(questId, element) {
+            const quest = gameState.quests.daily[questId];
+            if (!quest || quest.completed) return;
+            
+            quest.completed = true;
+            element.classList.add('completed');
+            awardXP(quest.xp, 'Quest completed!');
+            saveGameState();
+        }
+        
+        // ═══════════════════════════════════════════════════════════════════════
+        // FILTER SYSTEM
+        // ═══════════════════════════════════════════════════════════════════════
+        
+        function initFilters() {
+            document.querySelectorAll('.filter-chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                    chip.classList.add('active');
+                    gameState.filters.type = chip.dataset.filter;
+                    renderLegislation();
+                    saveGameState();
+                });
+            });
+        }
+        
+        // ═══════════════════════════════════════════════════════════════════════
+        // CONSTELLATION CANVAS
+        // ═══════════════════════════════════════════════════════════════════════
+        
+        function initConstellation() {
+            const canvas = document.getElementById('constellation-canvas');
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            let animationId;
+            
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            
+            function createParticle() {
+                const colors = [
+                    'rgba(52, 211, 153, 0.6)',  // Earth green
+                    'rgba(96, 165, 250, 0.5)',  // Pulse blue
+                    'rgba(251, 191, 36, 0.4)',  // Torch amber
+                    'rgba(167, 139, 250, 0.5)', // Forge violet
+                    'rgba(34, 211, 238, 0.6)'   // Accent cyan
+                ];
+                
+                return {
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 0.3,
+                    vy: (Math.random() - 0.5) * 0.3,
+                    radius: Math.random() * 2 + 0.5,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    pulse: Math.random() * Math.PI * 2
+                };
+            }
+            
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.pulse += 0.02;
+                    
+                    // Wrap around edges
+                    if (p.x < 0) p.x = canvas.width;
+                    if (p.x > canvas.width) p.x = 0;
+                    if (p.y < 0) p.y = canvas.height;
+                    if (p.y > canvas.height) p.y = 0;
+                    
+                    // Pulsing effect
+                    const pulseRadius = p.radius * (1 + Math.sin(p.pulse) * 0.3);
+                    
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, pulseRadius, 0, Math.PI * 2);
+                    ctx.fillStyle = p.color;
+                    ctx.fill();
+                });
+                
+                // Draw connections
+                particles.forEach((p1, i) => {
+                    particles.slice(i + 1).forEach(p2 => {
+                        const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
+                        if (dist < 150) {
+                            ctx.beginPath();
+                            ctx.moveTo(p1.x, p1.y);
+                            ctx.lineTo(p2.x, p2.y);
+                            ctx.strokeStyle = `rgba(34, 211, 238, ${0.1 * (1 - dist / 150)})`;
+                            ctx.lineWidth = 0.5;
+                            ctx.stroke();
+                        }
+                    });
+                });
+                
+                animationId = requestAnimationFrame(animate);
+            }
+            
+            // Check for reduced motion preference
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                resize();
+                particles = Array(50).fill(null).map(createParticle);
+                animate();
+                window.addEventListener('resize', resize);
+            }
+        }
+        
+        // ═══════════════════════════════════════════════════════════════════════
+        // TOAST NOTIFICATIONS
+        // ═══════════════════════════════════════════════════════════════════════
+        
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: ${type === 'success' ? 'rgba(52, 211, 153, 0.95)' : type === 'error' ? 'rgba(244, 63, 94, 0.95)' : 'rgba(34, 211, 238, 0.95)'};
+                color: #030712;
+                padding: 14px 20px;
+                border-radius: 12px;
+                font-weight: 500;
+                z-index: 10000;
+                animation: slideIn 0.3s ease-out;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                max-width: 320px;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease-in forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+        
+        // Add toast animations
+        const toastStyle = document.createElement('style');
+        toastStyle.textContent = `
+            @keyframes slideIn {
+                from { opacity: 0; transform: translateX(100px); }
+                to { opacity: 1; transform: translateX(0); }
+            }
+            @keyframes slideOut {
+                from { opacity: 1; transform: translateX(0); }
+                to { opacity: 0; transform: translateX(100px); }
+            }
+        `;
+        document.head.appendChild(toastStyle);
+        
+        // ═══════════════════════════════════════════════════════════════════════
+        // UTILITIES
+        // ═══════════════════════════════════════════════════════════════════════
+        
+        function esc(str) {
+            if (!str) return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+        
+        function capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+        
+        // ═══════════════════════════════════════════════════════════════════════
+        // TUTORIAL
+        // ═══════════════════════════════════════════════════════════════════════
+        
+        document.getElementById('start-tutorial-btn')?.addEventListener('click', () => {
+            if (!gameState.tutorialCompleted) {
+                awardXP(100, 'Tutorial completed!');
+                gameState.tutorialCompleted = true;
+                saveGameState();
+                showToast('🎓 Welcome aboard! Tutorial complete.', 'success');
+            } else {
+                showToast('You\'ve already completed the tutorial!', 'info');
+            }
+        });
+        
+        // ═══════════════════════════════════════════════════════════════════════
+        // INITIALIZATION
+        // ═══════════════════════════════════════════════════════════════════════
+        
+        function init() {
+            renderLegislation();
+            updateFilterCounts();
+            updatePlayerUI();
+            initFilters();
+            initQuests();
+            initConstellation();
+            
+            // Welcome back toast
+            showToast(`Welcome back, ${gameState.player.name}! 🌟`, 'info');
+        }
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    })();
+    </script>
+</body>
+</html>

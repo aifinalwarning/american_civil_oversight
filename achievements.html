@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Achievements | Democracy Quest</title>
+    <meta name="description" content="Track your civic achievements, unlock badges, and see your progress toward mastering democratic participation.">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Spectral:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --void: #030712; --nebula-deep: #0c1222; --nebula: #111827;
+            --stellar-dust: #1e293b; --cosmic-gray: #334155;
+            --starlight: #f1f5f9; --moonbeam: #cbd5e1; --comet-trail: #94a3b8;
+            --earth-glow: #34d399; --earth-dim: rgba(52,211,153,0.15);
+            --pulse-blue: #60a5fa; --pulse-dim: rgba(96,165,250,0.15);
+            --torch-amber: #fbbf24; --torch-dim: rgba(251,191,36,0.15);
+            --forge-violet: #a78bfa; --forge-dim: rgba(167,139,250,0.15);
+            --xp-gold: #fcd34d; --xp-glow: rgba(252,211,77,0.3);
+            --accent-cyan: #22d3ee;
+            --bronze: #cd7f32; --silver: #c0c0c0; --gold: #ffd700; --platinum: #e5e4e2;
+            --font-display: 'Spectral', Georgia, serif;
+            --font-body: 'Space Grotesk', system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --space-atom: 0.5rem; --space-molecule: 1rem; --space-cell: 1.618rem; --space-organ: 2.618rem;
+            --radius-tight: 6px; --radius-normal: 12px; --radius-relaxed: 20px; --radius-orbital: 9999px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--font-body); background: var(--void); color: var(--starlight); line-height: 1.6; min-height: 100vh; }
+        
+        .nebula-gradient {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background: 
+                radial-gradient(ellipse 80% 50% at 30% 20%, rgba(255,215,0,0.06) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 70% 80%, rgba(167,139,250,0.05) 0%, transparent 50%);
+        }
+        
+        .app-container { position: relative; z-index: 2; min-height: 100vh; }
+        
+        /* Header */
+        .main-header {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(12,18,34,0.9); backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(148,163,184,0.1);
+        }
+        .header-content {
+            max-width: 1400px; margin: 0 auto; padding: var(--space-molecule) var(--space-cell);
+            display: flex; align-items: center; justify-content: space-between; gap: var(--space-cell); flex-wrap: wrap;
+        }
+        .logo-cluster { display: flex; align-items: center; gap: var(--space-molecule); text-decoration: none; color: inherit; }
+        .logo-emblem {
+            width: 44px; height: 44px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--earth-glow));
+            border-radius: var(--radius-normal); display: flex; align-items: center; justify-content: center;
+            position: relative; overflow: hidden;
+        }
+        .logo-emblem::before { content: ''; position: absolute; inset: 2px; background: var(--nebula-deep); border-radius: calc(var(--radius-normal) - 2px); }
+        .logo-emblem svg { position: relative; width: 24px; height: 24px; stroke: var(--accent-cyan); fill: none; stroke-width: 1.5; }
+        .logo-text h1 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; line-height: 1.1; }
+        .logo-text span { font-size: 0.65rem; color: var(--comet-trail); text-transform: uppercase; letter-spacing: 0.12em; }
+        
+        nav { display: flex; gap: 0.25rem; }
+        nav a {
+            padding: var(--space-atom) var(--space-molecule); color: var(--moonbeam); text-decoration: none;
+            border-radius: var(--radius-tight); font-size: 0.9rem; font-weight: 500; transition: all 0.2s;
+            display: flex; align-items: center; gap: var(--space-atom);
+        }
+        nav a:hover { color: var(--starlight); background: rgba(148,163,184,0.1); }
+        nav a.active { background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(252,211,77,0.1)); color: var(--xp-gold); }
+        nav a svg { width: 18px; height: 18px; }
+        
+        main { max-width: 1400px; margin: 0 auto; padding: var(--space-cell); }
+        
+        /* Hero */
+        .hero { text-align: center; margin-bottom: var(--space-organ); padding: var(--space-organ) 0; }
+        .hero h1 {
+            font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3rem); font-weight: 700;
+            margin-bottom: var(--space-molecule);
+        }
+        .hero h1 .gradient { background: linear-gradient(135deg, var(--gold), var(--xp-gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero p { font-size: 1.1rem; color: var(--moonbeam); max-width: 600px; margin: 0 auto; }
+        
+        /* Stats Overview */
+        .stats-overview {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-cell);
+            margin-bottom: var(--space-organ);
+        }
+        .stat-card {
+            background: var(--nebula); border: 1px solid rgba(148,163,184,0.1);
+            border-radius: var(--radius-relaxed); padding: var(--space-cell); text-align: center;
+        }
+        .stat-value {
+            font-family: var(--font-mono); font-size: 2.5rem; font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--earth-glow));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            line-height: 1; margin-bottom: var(--space-atom);
+        }
+        .stat-value.gold { background: linear-gradient(135deg, var(--gold), var(--torch-amber)); -webkit-background-clip: text; }
+        .stat-label { font-size: 0.9rem; color: var(--comet-trail); text-transform: uppercase; letter-spacing: 0.05em; }
+        
+        /* Achievement Sections */
+        .achievements-section { margin-bottom: var(--space-organ); }
+        .section-header {
+            display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-cell);
+        }
+        .section-title {
+            font-family: var(--font-display); font-size: 1.5rem; font-weight: 600;
+            display: flex; align-items: center; gap: var(--space-atom);
+        }
+        .section-title svg { width: 24px; height: 24px; }
+        .section-title.bronze svg { color: var(--bronze); }
+        .section-title.silver svg { color: var(--silver); }
+        .section-title.gold svg { color: var(--gold); }
+        .section-title.platinum svg { color: var(--platinum); }
+        
+        .section-count {
+            font-family: var(--font-mono); font-size: 0.9rem;
+            padding: var(--space-atom) var(--space-molecule);
+            background: var(--stellar-dust); border-radius: var(--radius-orbital);
+            color: var(--moonbeam);
+        }
+        
+        .achievements-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-molecule);
+        }
+        
+        .achievement-card {
+            background: var(--nebula); border: 1px solid rgba(148,163,184,0.1);
+            border-radius: var(--radius-normal); padding: var(--space-cell);
+            display: flex; gap: var(--space-molecule); align-items: flex-start;
+            transition: all 0.3s;
+        }
+        .achievement-card:hover { border-color: rgba(148,163,184,0.2); transform: translateY(-2px); }
+        .achievement-card.locked { opacity: 0.5; }
+        .achievement-card.unlocked { border-color: rgba(255,215,0,0.3); }
+        
+        .achievement-badge {
+            width: 56px; height: 56px; border-radius: var(--radius-normal);
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+            position: relative;
+        }
+        .achievement-badge svg { width: 28px; height: 28px; }
+        .achievement-badge.bronze { background: linear-gradient(135deg, var(--bronze), #8b4513); color: white; }
+        .achievement-badge.silver { background: linear-gradient(135deg, var(--silver), #808080); color: #333; }
+        .achievement-badge.gold { background: linear-gradient(135deg, var(--gold), #b8860b); color: #333; box-shadow: 0 0 20px rgba(255,215,0,0.4); }
+        .achievement-badge.platinum { background: linear-gradient(135deg, var(--platinum), #a9a9a9); color: #333; box-shadow: 0 0 25px rgba(229,228,226,0.5); }
+        .achievement-badge.locked { background: var(--stellar-dust); color: var(--cosmic-gray); }
+        
+        .achievement-badge.unlocked::after {
+            content: '✓'; position: absolute; bottom: -4px; right: -4px;
+            width: 20px; height: 20px; background: var(--earth-glow); color: var(--void);
+            border-radius: 50%; font-size: 0.7rem; font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid var(--nebula);
+        }
+        
+        .achievement-info { flex: 1; }
+        .achievement-name { font-weight: 600; margin-bottom: 4px; }
+        .achievement-desc { font-size: 0.85rem; color: var(--moonbeam); line-height: 1.5; margin-bottom: var(--space-atom); }
+        .achievement-progress {
+            display: flex; align-items: center; gap: var(--space-atom);
+            font-size: 0.8rem; color: var(--comet-trail);
+        }
+        .achievement-progress-bar {
+            flex: 1; height: 4px; background: var(--stellar-dust); border-radius: 2px; overflow: hidden;
+        }
+        .achievement-progress-fill { height: 100%; border-radius: 2px; background: var(--xp-gold); }
+        
+        .achievement-xp {
+            font-family: var(--font-mono); font-size: 0.8rem; color: var(--xp-gold);
+            display: flex; align-items: center; gap: 4px;
+        }
+        .achievement-xp svg { width: 14px; height: 14px; }
+        
+        /* Rank Progress */
+        .rank-section {
+            background: var(--nebula); border: 1px solid rgba(148,163,184,0.1);
+            border-radius: var(--radius-relaxed); padding: var(--space-cell); margin-bottom: var(--space-organ);
+        }
+        .rank-header { display: flex; align-items: center; gap: var(--space-cell); margin-bottom: var(--space-cell); flex-wrap: wrap; }
+        .current-rank {
+            display: flex; align-items: center; gap: var(--space-molecule);
+            padding: var(--space-molecule) var(--space-cell);
+            background: linear-gradient(135deg, var(--xp-glow), rgba(251,191,36,0.05));
+            border: 1px solid rgba(252,211,77,0.3); border-radius: var(--radius-normal);
+        }
+        .current-rank-badge {
+            width: 48px; height: 48px; background: linear-gradient(135deg, var(--xp-gold), var(--torch-amber));
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; color: var(--void);
+        }
+        .current-rank-info h3 { font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; }
+        .current-rank-info span { font-size: 0.85rem; color: var(--xp-gold); }
+        
+        .next-rank { color: var(--moonbeam); font-size: 0.95rem; }
+        .next-rank strong { color: var(--starlight); }
+        
+        .rank-progress { margin-top: var(--space-cell); }
+        .rank-progress-header { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: var(--space-atom); }
+        .rank-progress-label { color: var(--comet-trail); }
+        .rank-progress-value { font-family: var(--font-mono); color: var(--xp-gold); }
+        .rank-progress-bar { height: 10px; background: var(--stellar-dust); border-radius: 5px; overflow: hidden; }
+        .rank-progress-fill {
+            height: 100%; border-radius: 5px;
+            background: linear-gradient(90deg, var(--xp-gold), var(--torch-amber));
+            transition: width 0.5s ease;
+        }
+        
+        .rank-milestones { display: flex; justify-content: space-between; margin-top: var(--space-molecule); }
+        .milestone {
+            text-align: center; font-size: 0.75rem; color: var(--comet-trail);
+        }
+        .milestone.achieved { color: var(--xp-gold); }
+        .milestone-dot {
+            width: 12px; height: 12px; background: var(--stellar-dust);
+            border-radius: 50%; margin: 0 auto var(--space-atom);
+        }
+        .milestone.achieved .milestone-dot { background: var(--xp-gold); }
+        
+        /* Footer */
+        footer { background: var(--nebula); border-top: 1px solid rgba(148,163,184,0.1); padding: var(--space-organ) var(--space-cell); margin-top: var(--space-organ); }
+        .footer-content { max-width: 1400px; margin: 0 auto; }
+        .zero-harm {
+            background: linear-gradient(90deg, var(--earth-dim), var(--stellar-dust));
+            border: 1px solid rgba(52,211,153,0.2); border-radius: var(--radius-normal);
+            padding: var(--space-cell); margin-bottom: var(--space-cell);
+        }
+        .zero-harm h4 { font-size: 0.9rem; font-weight: 600; color: var(--earth-glow); margin-bottom: var(--space-atom); display: flex; align-items: center; gap: var(--space-atom); }
+        .zero-harm h4 svg { width: 18px; height: 18px; }
+        .zero-harm p { font-size: 0.85rem; color: var(--moonbeam); line-height: 1.7; }
+        .footer-bottom {
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-molecule);
+            padding-top: var(--space-cell); border-top: 1px solid rgba(148,163,184,0.1);
+            font-size: 0.85rem; color: var(--comet-trail);
+        }
+        .footer-bottom a { color: var(--moonbeam); text-decoration: none; }
+        .footer-bottom a:hover { color: var(--starlight); }
+        
+        @media (max-width: 768px) {
+            nav a span { display: none; }
+            .stats-overview { grid-template-columns: repeat(2, 1fr); }
+            .achievements-grid { grid-template-columns: 1fr; }
+        }
+        
+        :focus-visible { outline: 2px solid var(--accent-cyan); outline-offset: 2px; }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+    </style>
+</head>
+<body>
+    <div class="nebula-gradient" aria-hidden="true"></div>
+    
+    <div class="app-container">
+        <header class="main-header">
+            <div class="header-content">
+                <a href="index.html" class="logo-cluster">
+                    <div class="logo-emblem">
+                        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </div>
+                    <div class="logo-text"><h1>Democracy Quest</h1><span>Civic Mastery Platform</span></div>
+                </a>
+                <nav>
+                    <a href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg><span>Command</span></a>
+                    <a href="academy.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg><span>Academy</span></a>
+                    <a href="action-hub.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span>Action</span></a>
+                    <a href="achievements.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg><span>Achievements</span></a>
+                </nav>
+            </div>
+        </header>
+        
+        <main>
+            <section class="hero">
+                <h1>Your <span class="gradient">Achievements</span></h1>
+                <p>Track your progress, unlock badges, and celebrate your journey toward civic mastery. Every action brings you closer to democracy hero status.</p>
+            </section>
+            
+            <section class="stats-overview">
+                <div class="stat-card">
+                    <div class="stat-value gold">1,250</div>
+                    <div class="stat-label">Total XP Earned</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">5</div>
+                    <div class="stat-label">Current Level</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">7</div>
+                    <div class="stat-label">Achievements</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">7</div>
+                    <div class="stat-label">Day Streak 🔥</div>
+                </div>
+            </section>
+            
+            <section class="rank-section">
+                <div class="rank-header">
+                    <div class="current-rank">
+                        <div class="current-rank-badge">5</div>
+                        <div class="current-rank-info">
+                            <h3>Informed Observer</h3>
+                            <span>Level 5 Civic Champion</span>
+                        </div>
+                    </div>
+                    <div class="next-rank">Next rank: <strong>Active Citizen</strong> at Level 10</div>
+                </div>
+                <div class="rank-progress">
+                    <div class="rank-progress-header">
+                        <span class="rank-progress-label">Progress to Level 6</span>
+                        <span class="rank-progress-value">1,250 / 2,000 XP</span>
+                    </div>
+                    <div class="rank-progress-bar"><div class="rank-progress-fill" style="width: 62.5%;"></div></div>
+                </div>
+                <div class="rank-milestones">
+                    <div class="milestone achieved"><div class="milestone-dot"></div>Newcomer<br>Lv 1</div>
+                    <div class="milestone achieved"><div class="milestone-dot"></div>Curious<br>Lv 3</div>
+                    <div class="milestone achieved"><div class="milestone-dot"></div>Observer<br>Lv 5</div>
+                    <div class="milestone"><div class="milestone-dot"></div>Citizen<br>Lv 10</div>
+                    <div class="milestone"><div class="milestone-dot"></div>Advocate<br>Lv 20</div>
+                    <div class="milestone"><div class="milestone-dot"></div>Champion<br>Lv 50</div>
+                </div>
+            </section>
+            
+            <section class="achievements-section">
+                <div class="section-header">
+                    <h2 class="section-title gold"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" fill="none" stroke="currentColor" stroke-width="2"/></svg>Gold Achievements</h2>
+                    <span class="section-count">1/5 Unlocked</span>
+                </div>
+                <div class="achievements-grid">
+                    <div class="achievement-card unlocked">
+                        <div class="achievement-badge gold unlocked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+                        <div class="achievement-info">
+                            <div class="achievement-name">Week Warrior</div>
+                            <div class="achievement-desc">Maintain a 7-day engagement streak</div>
+                            <div class="achievement-xp"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>+250 XP</div>
+                        </div>
+                    </div>
+                    <div class="achievement-card locked">
+                        <div class="achievement-badge locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+                        <div class="achievement-info">
+                            <div class="achievement-name">Voice of the People</div>
+                            <div class="achievement-desc">Submit 10 public comments on proposed rules</div>
+                            <div class="achievement-progress"><div class="achievement-progress-bar"><div class="achievement-progress-fill" style="width: 20%;"></div></div><span>2/10</span></div>
+                        </div>
+                    </div>
+                    <div class="achievement-card locked">
+                        <div class="achievement-badge locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72"/></svg></div>
+                        <div class="achievement-info">
+                            <div class="achievement-name">Direct Line</div>
+                            <div class="achievement-desc">Call your representatives 25 times</div>
+                            <div class="achievement-progress"><div class="achievement-progress-bar"><div class="achievement-progress-fill" style="width: 12%;"></div></div><span>3/25</span></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="achievements-section">
+                <div class="section-header">
+                    <h2 class="section-title silver"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" fill="none" stroke="currentColor" stroke-width="2"/></svg>Silver Achievements</h2>
+                    <span class="section-count">2/6 Unlocked</span>
+                </div>
+                <div class="achievements-grid">
+                    <div class="achievement-card unlocked">
+                        <div class="achievement-badge silver unlocked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
+                        <div class="achievement-info">
+                            <div class="achievement-name">Knowledge Seeker</div>
+                            <div class="achievement-desc">Complete 5 Academy lessons</div>
+                            <div class="achievement-xp"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>+150 XP</div>
+                        </div>
+                    </div>
+                    <div class="achievement-card unlocked">
+                        <div class="achievement-badge silver unlocked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+                        <div class="achievement-info">
+                            <div class="achievement-name">Risk Analyst</div>
+                            <div class="achievement-desc">Review risk breakdowns for 20 bills</div>
+                            <div class="achievement-xp"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>+150 XP</div>
+                        </div>
+                    </div>
+                    <div class="achievement-card locked">
+                        <div class="achievement-badge locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg></div>
+                        <div class="achievement-info">
+                            <div class="achievement-name">Month Streak</div>
+                            <div class="achievement-desc">Maintain a 30-day engagement streak</div>
+                            <div class="achievement-progress"><div class="achievement-progress-bar"><div class="achievement-progress-fill" style="width: 23%;"></div></div><span>7/30 days</span></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="achievements-section">
+                <div class="section-header">
+                    <h2 class="section-title bronze"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" fill="none" stroke="currentColor" stroke-width="2"/></svg>Bronze Achievements</h2>
+                    <span class="section-count">4/8 Unlocked</span>
+                </div>
+                <div class="achievements-grid">
+                    <div class="achievement-card unlocked">
+                        <div class="achievement-badge bronze unlocked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+                        <div class="achievement-info">
+                            <div class="achievement-name">First Bill Tracked</div>
+                            <div class="achievement-desc">Track your first piece of legislation</div>
+                            <div class="achievement-xp"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>+50 XP</div>
+                        </div>
+                    </div>
+                    <div class="achievement-card unlocked">
+                        <div class="achievement-badge bronze unlocked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+                        <div class="achievement-info">
+                            <div class="achievement-name">Tutorial Complete</div>
+                            <div class="achievement-desc">Finish the introduction tutorial</div>
+                            <div class="achievement-xp"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>+100 XP</div>
+                        </div>
+                    </div>
+                    <div class="achievement-card unlocked">
+                        <div class="achievement-badge bronze unlocked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+                        <div class="achievement-info">
+                            <div class="achievement-name">First Lesson</div>
+                            <div class="achievement-desc">Complete your first Academy lesson</div>
+                            <div class="achievement-xp"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>+75 XP</div>
+                        </div>
+                    </div>
+                    <div class="achievement-card unlocked">
+                        <div class="achievement-badge bronze unlocked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg></div>
+                        <div class="achievement-info">
+                            <div class="achievement-name">Three Day Streak</div>
+                            <div class="achievement-desc">Visit for 3 consecutive days</div>
+                            <div class="achievement-xp"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>+50 XP</div>
+                        </div>
+                    </div>
+                    <div class="achievement-card locked">
+                        <div class="achievement-badge locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07"/></svg></div>
+                        <div class="achievement-info">
+                            <div class="achievement-name">First Call</div>
+                            <div class="achievement-desc">Contact a representative by phone</div>
+                            <div class="achievement-progress"><div class="achievement-progress-bar"><div class="achievement-progress-fill" style="width: 0%;"></div></div><span>0/1</span></div>
+                        </div>
+                    </div>
+                    <div class="achievement-card locked">
+                        <div class="achievement-badge locked"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+                        <div class="achievement-info">
+                            <div class="achievement-name">First Comment</div>
+                            <div class="achievement-desc">Submit a public comment on a proposed rule</div>
+                            <div class="achievement-progress"><div class="achievement-progress-bar"><div class="achievement-progress-fill" style="width: 0%;"></div></div><span>0/1</span></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <footer>
+            <div class="footer-content">
+                <div class="zero-harm">
+                    <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Zero Harm & Anti-Coercion Commitment</h4>
+                    <p>Achievements celebrate civic engagement, not political positions. We reward participation in democracy itself—learning, engaging, and making your voice heard—regardless of your views. All progress is stored locally in your browser with no external tracking.</p>
+                </div>
+                <div class="footer-bottom">
+                    <span>© 2025 Democracy Quest. Open source for democracy.</span>
+                    <span><a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> • <a href="academy.html#privacy">Privacy</a> • <a href="academy.html#accessibility">Accessibility</a></span>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civic Academy | Democracy Quest</title>
+    <meta name="description" content="Master the fundamentals of democratic participation through interactive lessons. Learn how laws are made, understand risk scoring, and level up your civic knowledge.">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Spectral:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --void: #030712; --nebula-deep: #0c1222; --nebula: #111827;
+            --stellar-dust: #1e293b; --cosmic-gray: #334155;
+            --starlight: #f1f5f9; --moonbeam: #cbd5e1; --comet-trail: #94a3b8;
+            --earth-glow: #34d399; --earth-dim: rgba(52,211,153,0.15);
+            --pulse-blue: #60a5fa; --pulse-dim: rgba(96,165,250,0.15);
+            --torch-amber: #fbbf24; --torch-dim: rgba(251,191,36,0.15);
+            --forge-violet: #a78bfa; --forge-dim: rgba(167,139,250,0.15);
+            --xp-gold: #fcd34d; --xp-glow: rgba(252,211,77,0.3);
+            --accent-cyan: #22d3ee; --accent-glow: rgba(34,211,238,0.2);
+            --font-display: 'Spectral', Georgia, serif;
+            --font-body: 'Space Grotesk', system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --space-atom: 0.5rem; --space-molecule: 1rem; --space-cell: 1.618rem; --space-organ: 2.618rem;
+            --radius-tight: 6px; --radius-normal: 12px; --radius-relaxed: 20px; --radius-orbital: 9999px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--font-body); background: var(--void); color: var(--starlight); line-height: 1.6; min-height: 100vh; }
+        
+        .nebula-gradient {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background: 
+                radial-gradient(ellipse 80% 50% at 20% 30%, rgba(52,211,153,0.06) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 80% 70%, rgba(96,165,250,0.05) 0%, transparent 50%),
+                radial-gradient(ellipse 100% 80% at 50% 100%, rgba(167,139,250,0.04) 0%, transparent 40%);
+        }
+        
+        .app-container { position: relative; z-index: 2; min-height: 100vh; }
+        
+        /* Header */
+        .main-header {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(12,18,34,0.9); backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(148,163,184,0.1);
+        }
+        .header-content {
+            max-width: 1400px; margin: 0 auto; padding: var(--space-molecule) var(--space-cell);
+            display: flex; align-items: center; justify-content: space-between; gap: var(--space-cell); flex-wrap: wrap;
+        }
+        .logo-cluster { display: flex; align-items: center; gap: var(--space-molecule); text-decoration: none; color: inherit; }
+        .logo-emblem {
+            width: 44px; height: 44px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--earth-glow));
+            border-radius: var(--radius-normal); display: flex; align-items: center; justify-content: center;
+            position: relative; overflow: hidden;
+        }
+        .logo-emblem::before { content: ''; position: absolute; inset: 2px; background: var(--nebula-deep); border-radius: calc(var(--radius-normal) - 2px); }
+        .logo-emblem svg { position: relative; width: 24px; height: 24px; stroke: var(--accent-cyan); fill: none; stroke-width: 1.5; }
+        .logo-text h1 { font-family: var(--font-display); font-size: 1.3rem; font-weight: 600; line-height: 1.1; }
+        .logo-text span { font-size: 0.65rem; color: var(--comet-trail); text-transform: uppercase; letter-spacing: 0.12em; }
+        
+        nav { display: flex; gap: 0.25rem; }
+        nav a {
+            padding: var(--space-atom) var(--space-molecule); color: var(--moonbeam); text-decoration: none;
+            border-radius: var(--radius-tight); font-size: 0.9rem; font-weight: 500; transition: all 0.2s;
+            display: flex; align-items: center; gap: var(--space-atom);
+        }
+        nav a:hover { color: var(--starlight); background: rgba(148,163,184,0.1); }
+        nav a.active { background: linear-gradient(135deg, rgba(34,211,238,0.2), rgba(52,211,153,0.1)); color: var(--accent-cyan); }
+        nav a svg { width: 18px; height: 18px; }
+        
+        main { max-width: 1400px; margin: 0 auto; padding: var(--space-cell); }
+        
+        /* Hero */
+        .hero { text-align: center; margin-bottom: var(--space-organ); padding: var(--space-organ) 0; }
+        .hero h1 {
+            font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3rem); font-weight: 700;
+            margin-bottom: var(--space-molecule);
+        }
+        .hero h1 .gradient { background: linear-gradient(135deg, var(--accent-cyan), var(--earth-glow), var(--xp-gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero p { font-size: 1.1rem; color: var(--moonbeam); max-width: 600px; margin: 0 auto; }
+        
+        /* Learning Paths */
+        .paths-section { margin-bottom: var(--space-organ); }
+        .section-title {
+            font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; margin-bottom: var(--space-cell);
+            display: flex; align-items: center; gap: var(--space-atom);
+        }
+        .section-title svg { width: 24px; height: 24px; color: var(--accent-cyan); }
+        
+        .paths-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-cell); }
+        
+        .path-card {
+            background: var(--nebula); border: 1px solid rgba(148,163,184,0.1); border-radius: var(--radius-relaxed);
+            padding: var(--space-cell); position: relative; overflow: hidden; transition: all 0.3s; cursor: pointer;
+        }
+        .path-card:hover { border-color: rgba(148,163,184,0.25); transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+        .path-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
+        .path-card.fundamentals::before { background: var(--earth-glow); }
+        .path-card.advanced::before { background: var(--pulse-blue); }
+        .path-card.action::before { background: var(--torch-amber); }
+        .path-card.deep::before { background: var(--forge-violet); }
+        
+        .path-icon {
+            width: 56px; height: 56px; border-radius: var(--radius-normal);
+            display: flex; align-items: center; justify-content: center; margin-bottom: var(--space-molecule);
+        }
+        .path-icon svg { width: 28px; height: 28px; }
+        .path-card.fundamentals .path-icon { background: var(--earth-dim); color: var(--earth-glow); }
+        .path-card.advanced .path-icon { background: var(--pulse-dim); color: var(--pulse-blue); }
+        .path-card.action .path-icon { background: var(--torch-dim); color: var(--torch-amber); }
+        .path-card.deep .path-icon { background: var(--forge-dim); color: var(--forge-violet); }
+        
+        .path-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: var(--space-atom); }
+        .path-title { font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; }
+        .path-level {
+            padding: 4px 10px; border-radius: var(--radius-orbital);
+            font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+        }
+        .path-card.fundamentals .path-level { background: var(--earth-dim); color: var(--earth-glow); }
+        .path-card.advanced .path-level { background: var(--pulse-dim); color: var(--pulse-blue); }
+        .path-card.action .path-level { background: var(--torch-dim); color: var(--torch-amber); }
+        .path-card.deep .path-level { background: var(--forge-dim); color: var(--forge-violet); }
+        
+        .path-desc { font-size: 0.9rem; color: var(--moonbeam); margin-bottom: var(--space-molecule); line-height: 1.6; }
+        
+        .path-progress { margin-bottom: var(--space-molecule); }
+        .path-progress-header { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: var(--space-atom); }
+        .path-progress-label { color: var(--comet-trail); }
+        .path-progress-value { font-family: var(--font-mono); color: var(--xp-gold); }
+        .path-progress-bar { height: 6px; background: var(--stellar-dust); border-radius: 3px; overflow: hidden; }
+        .path-progress-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+        .path-card.fundamentals .path-progress-fill { background: var(--earth-glow); }
+        .path-card.advanced .path-progress-fill { background: var(--pulse-blue); }
+        .path-card.action .path-progress-fill { background: var(--torch-amber); }
+        .path-card.deep .path-progress-fill { background: var(--forge-violet); }
+        
+        .path-lessons { display: flex; gap: var(--space-atom); flex-wrap: wrap; }
+        .lesson-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--stellar-dust); border: 2px solid var(--cosmic-gray); }
+        .lesson-dot.complete { background: var(--earth-glow); border-color: var(--earth-glow); }
+        .lesson-dot.current { background: var(--xp-gold); border-color: var(--xp-gold); animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+        
+        .path-xp {
+            display: flex; align-items: center; gap: var(--space-atom);
+            font-family: var(--font-mono); font-size: 0.85rem; color: var(--xp-gold);
+        }
+        .path-xp svg { width: 16px; height: 16px; }
+        
+        /* Lesson Modal */
+        .lesson-container {
+            display: none; position: fixed; inset: 0; z-index: 1000;
+            background: rgba(3,7,18,0.95); backdrop-filter: blur(10px);
+            overflow-y: auto; padding: var(--space-cell);
+        }
+        .lesson-container.active { display: block; }
+        
+        .lesson-content {
+            max-width: 800px; margin: 0 auto;
+            background: var(--nebula); border: 1px solid rgba(148,163,184,0.15);
+            border-radius: var(--radius-relaxed); overflow: hidden;
+        }
+        
+        .lesson-header {
+            background: linear-gradient(90deg, var(--stellar-dust), var(--nebula));
+            padding: var(--space-cell); border-bottom: 1px solid rgba(148,163,184,0.1);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .lesson-header h2 { font-family: var(--font-display); font-size: 1.5rem; }
+        .lesson-close {
+            width: 40px; height: 40px; background: var(--cosmic-gray); border: none;
+            border-radius: 50%; cursor: pointer; color: var(--starlight);
+            display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+        }
+        .lesson-close:hover { background: var(--stellar-dust); }
+        .lesson-close svg { width: 20px; height: 20px; }
+        
+        .lesson-body { padding: var(--space-cell); }
+        .lesson-body h3 { font-family: var(--font-display); font-size: 1.25rem; margin: var(--space-cell) 0 var(--space-molecule); color: var(--accent-cyan); }
+        .lesson-body p { color: var(--moonbeam); margin-bottom: var(--space-molecule); line-height: 1.8; }
+        .lesson-body ul { color: var(--moonbeam); margin-bottom: var(--space-molecule); padding-left: var(--space-cell); }
+        .lesson-body li { margin-bottom: var(--space-atom); }
+        
+        .lesson-callout {
+            background: var(--stellar-dust); border-left: 4px solid var(--accent-cyan);
+            padding: var(--space-molecule); border-radius: 0 var(--radius-tight) var(--radius-tight) 0;
+            margin: var(--space-cell) 0;
+        }
+        .lesson-callout.tip { border-color: var(--xp-gold); background: var(--xp-glow); }
+        .lesson-callout h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: var(--space-atom); display: flex; align-items: center; gap: var(--space-atom); }
+        .lesson-callout h4 svg { width: 18px; height: 18px; }
+        .lesson-callout p { margin: 0; font-size: 0.9rem; }
+        
+        .lesson-diagram {
+            background: var(--nebula-deep); border: 1px solid rgba(148,163,184,0.1);
+            border-radius: var(--radius-normal); padding: var(--space-cell); margin: var(--space-cell) 0;
+        }
+        .process-flow {
+            display: flex; flex-wrap: wrap; gap: var(--space-molecule); justify-content: center;
+        }
+        .process-step {
+            flex: 1; min-width: 120px; max-width: 150px;
+            background: var(--stellar-dust); border-radius: var(--radius-normal);
+            padding: var(--space-molecule); text-align: center; position: relative;
+        }
+        .process-step::after {
+            content: '→'; position: absolute; right: -18px; top: 50%; transform: translateY(-50%);
+            color: var(--accent-cyan); font-size: 1.2rem;
+        }
+        .process-step:last-child::after { display: none; }
+        .step-num {
+            width: 28px; height: 28px; background: var(--accent-cyan); color: var(--void);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.85rem; margin: 0 auto var(--space-atom);
+        }
+        .step-title { font-weight: 600; font-size: 0.85rem; margin-bottom: 2px; }
+        .step-desc { font-size: 0.75rem; color: var(--comet-trail); }
+        
+        .lesson-quiz { margin-top: var(--space-organ); padding-top: var(--space-cell); border-top: 1px solid rgba(148,163,184,0.1); }
+        .quiz-question { font-weight: 600; margin-bottom: var(--space-molecule); font-size: 1.1rem; }
+        .quiz-options { display: flex; flex-direction: column; gap: var(--space-atom); }
+        .quiz-option {
+            padding: var(--space-molecule); background: var(--stellar-dust);
+            border: 2px solid transparent; border-radius: var(--radius-normal);
+            cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: var(--space-molecule);
+        }
+        .quiz-option:hover { border-color: rgba(148,163,184,0.3); }
+        .quiz-option.selected { border-color: var(--accent-cyan); background: var(--accent-glow); }
+        .quiz-option.correct { border-color: var(--earth-glow); background: var(--earth-dim); }
+        .quiz-option.incorrect { border-color: #f43f5e; background: rgba(244,63,94,0.15); }
+        .quiz-letter {
+            width: 28px; height: 28px; background: var(--cosmic-gray); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 600; font-size: 0.85rem; flex-shrink: 0;
+        }
+        .quiz-option.correct .quiz-letter { background: var(--earth-glow); color: var(--void); }
+        .quiz-option.incorrect .quiz-letter { background: #f43f5e; color: white; }
+        
+        .lesson-footer {
+            padding: var(--space-cell); background: var(--stellar-dust);
+            display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-molecule);
+        }
+        .xp-reward {
+            display: flex; align-items: center; gap: var(--space-atom);
+            font-family: var(--font-mono); font-size: 1rem; color: var(--xp-gold);
+        }
+        .xp-reward svg { width: 20px; height: 20px; }
+        .btn-complete {
+            padding: var(--space-molecule) var(--space-cell);
+            background: linear-gradient(135deg, var(--accent-cyan), var(--earth-glow));
+            border: none; border-radius: var(--radius-normal);
+            font-size: 0.95rem; font-weight: 600; color: var(--void);
+            cursor: pointer; transition: all 0.3s;
+        }
+        .btn-complete:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(34,211,238,0.4); }
+        .btn-complete:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        
+        /* Knowledge Base Section */
+        .knowledge-section { margin-bottom: var(--space-organ); }
+        .knowledge-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-molecule); }
+        
+        .knowledge-card {
+            background: var(--nebula); border: 1px solid rgba(148,163,184,0.1);
+            border-radius: var(--radius-normal); padding: var(--space-cell); transition: all 0.2s;
+        }
+        .knowledge-card:hover { border-color: rgba(148,163,184,0.25); }
+        .knowledge-card h4 {
+            font-size: 1rem; font-weight: 600; margin-bottom: var(--space-atom);
+            display: flex; align-items: center; gap: var(--space-atom);
+        }
+        .knowledge-card h4 svg { width: 18px; height: 18px; color: var(--accent-cyan); }
+        .knowledge-card p { font-size: 0.9rem; color: var(--moonbeam); line-height: 1.6; }
+        
+        /* Footer */
+        footer { background: var(--nebula); border-top: 1px solid rgba(148,163,184,0.1); padding: var(--space-organ) var(--space-cell); margin-top: var(--space-organ); }
+        .footer-content { max-width: 1400px; margin: 0 auto; }
+        .zero-harm {
+            background: linear-gradient(90deg, var(--earth-dim), var(--stellar-dust));
+            border: 1px solid rgba(52,211,153,0.2); border-radius: var(--radius-normal);
+            padding: var(--space-cell); margin-bottom: var(--space-cell);
+        }
+        .zero-harm h4 { font-size: 0.9rem; font-weight: 600; color: var(--earth-glow); margin-bottom: var(--space-atom); display: flex; align-items: center; gap: var(--space-atom); }
+        .zero-harm h4 svg { width: 18px; height: 18px; }
+        .zero-harm p { font-size: 0.85rem; color: var(--moonbeam); line-height: 1.7; }
+        .footer-bottom {
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-molecule);
+            padding-top: var(--space-cell); border-top: 1px solid rgba(148,163,184,0.1);
+            font-size: 0.85rem; color: var(--comet-trail);
+        }
+        .footer-bottom a { color: var(--moonbeam); text-decoration: none; }
+        .footer-bottom a:hover { color: var(--starlight); }
+        
+        @media (max-width: 768px) {
+            nav a span { display: none; }
+            .paths-grid { grid-template-columns: 1fr; }
+            .process-flow { flex-direction: column; align-items: center; }
+            .process-step::after { display: none; }
+        }
+        
+        :focus-visible { outline: 2px solid var(--accent-cyan); outline-offset: 2px; }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+    </style>
+</head>
+<body>
+    <div class="nebula-gradient" aria-hidden="true"></div>
+    
+    <div class="app-container">
+        <header class="main-header">
+            <div class="header-content">
+                <a href="index.html" class="logo-cluster">
+                    <div class="logo-emblem">
+                        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </div>
+                    <div class="logo-text"><h1>Democracy Quest</h1><span>Civic Mastery Platform</span></div>
+                </a>
+                <nav>
+                    <a href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg><span>Command</span></a>
+                    <a href="academy.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg><span>Academy</span></a>
+                    <a href="action-hub.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span>Action</span></a>
+                    <a href="achievements.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg><span>Achievements</span></a>
+                </nav>
+            </div>
+        </header>
+        
+        <main>
+            <section class="hero">
+                <h1>Civic <span class="gradient">Academy</span></h1>
+                <p>Master the fundamentals of democratic participation through interactive lessons. Complete paths to unlock achievements and level up your civic knowledge.</p>
+            </section>
+            
+            <section class="paths-section">
+                <h2 class="section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Learning Paths</h2>
+                
+                <div class="paths-grid">
+                    <div class="path-card fundamentals" data-path="fundamentals">
+                        <div class="path-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+                        <div class="path-header">
+                            <h3 class="path-title">Democracy Fundamentals</h3>
+                            <span class="path-level">Beginner</span>
+                        </div>
+                        <p class="path-desc">Learn how the U.S. government works, understand the three branches, and discover how citizens can participate in democracy.</p>
+                        <div class="path-progress">
+                            <div class="path-progress-header">
+                                <span class="path-progress-label">Progress</span>
+                                <span class="path-progress-value">3/5 Lessons</span>
+                            </div>
+                            <div class="path-progress-bar"><div class="path-progress-fill" style="width: 60%;"></div></div>
+                        </div>
+                        <div class="path-lessons">
+                            <span class="lesson-dot complete" title="Complete"></span>
+                            <span class="lesson-dot complete" title="Complete"></span>
+                            <span class="lesson-dot complete" title="Complete"></span>
+                            <span class="lesson-dot current" title="Current"></span>
+                            <span class="lesson-dot" title="Locked"></span>
+                        </div>
+                        <div class="path-xp"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>+500 XP Total</div>
+                    </div>
+                    
+                    <div class="path-card advanced" data-path="advanced">
+                        <div class="path-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+                        <div class="path-header">
+                            <h3 class="path-title">Legislative Process</h3>
+                            <span class="path-level">Intermediate</span>
+                        </div>
+                        <p class="path-desc">Deep dive into how laws are made, the role of committees, and how executive orders differ from legislation.</p>
+                        <div class="path-progress">
+                            <div class="path-progress-header">
+                                <span class="path-progress-label">Progress</span>
+                                <span class="path-progress-value">1/6 Lessons</span>
+                            </div>
+                            <div class="path-progress-bar"><div class="path-progress-fill" style="width: 16%;"></div></div>
+                        </div>
+                        <div class="path-lessons">
+                            <span class="lesson-dot complete"></span>
+                            <span class="lesson-dot current"></span>
+                            <span class="lesson-dot"></span>
+                            <span class="lesson-dot"></span>
+                            <span class="lesson-dot"></span>
+                            <span class="lesson-dot"></span>
+                        </div>
+                        <div class="path-xp"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>+750 XP Total</div>
+                    </div>
+                    
+                    <div class="path-card action" data-path="action">
+                        <div class="path-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+                        <div class="path-header">
+                            <h3 class="path-title">Taking Action</h3>
+                            <span class="path-level">Practical</span>
+                        </div>
+                        <p class="path-desc">Learn effective civic action strategies: contacting representatives, submitting comments, voting, and community organizing.</p>
+                        <div class="path-progress">
+                            <div class="path-progress-header">
+                                <span class="path-progress-label">Progress</span>
+                                <span class="path-progress-value">0/4 Lessons</span>
+                            </div>
+                            <div class="path-progress-bar"><div class="path-progress-fill" style="width: 0%;"></div></div>
+                        </div>
+                        <div class="path-lessons">
+                            <span class="lesson-dot current"></span>
+                            <span class="lesson-dot"></span>
+                            <span class="lesson-dot"></span>
+                            <span class="lesson-dot"></span>
+                        </div>
+                        <div class="path-xp"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>+600 XP Total</div>
+                    </div>
+                    
+                    <div class="path-card deep" data-path="deep">
+                        <div class="path-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+                        <div class="path-header">
+                            <h3 class="path-title">Risk Analysis</h3>
+                            <span class="path-level">Advanced</span>
+                        </div>
+                        <p class="path-desc">Understand our transparent risk scoring methodology, domain weighting, and how to interpret legislative impact assessments.</p>
+                        <div class="path-progress">
+                            <div class="path-progress-header">
+                                <span class="path-progress-label">Progress</span>
+                                <span class="path-progress-value">0/5 Lessons</span>
+                            </div>
+                            <div class="path-progress-bar"><div class="path-progress-fill" style="width: 0%;"></div></div>
+                        </div>
+                        <div class="path-lessons">
+                            <span class="lesson-dot current"></span>
+                            <span class="lesson-dot"></span>
+                            <span class="lesson-dot"></span>
+                            <span class="lesson-dot"></span>
+                            <span class="lesson-dot"></span>
+                        </div>
+                        <div class="path-xp"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>+800 XP Total</div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="knowledge-section" id="methodology">
+                <h2 class="section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>Quick Reference</h2>
+                
+                <div class="knowledge-grid">
+                    <div class="knowledge-card">
+                        <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Risk Scores Explained</h4>
+                        <p>Risk scores (0-100) show impact magnitude, not whether legislation is "good" or "bad." A high environmental score means significant environmental impact—it could help OR harm the environment.</p>
+                    </div>
+                    <div class="knowledge-card">
+                        <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/></svg>Domain Weights</h4>
+                        <p>Environmental (35%), Healthcare (28%), Civil Liberties (22%), Economic (15%). These weights reflect prioritization for civic oversight—you can focus on domains that matter most to you.</p>
+                    </div>
+                    <div class="knowledge-card">
+                        <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>Phone Calls Work Best</h4>
+                        <p>Congressional offices track constituent calls. A brief, polite phone call is often 10x more effective than email or form letters. Always mention specific bill numbers.</p>
+                    </div>
+                    <div class="knowledge-card" id="privacy">
+                        <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Privacy Commitment</h4>
+                        <p>Zero tracking. Zero analytics. All data stays in your browser's local storage. We never collect, store, or transmit any personal information. Clear your browser data anytime to reset.</p>
+                    </div>
+                    <div class="knowledge-card" id="accessibility">
+                        <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>Accessibility</h4>
+                        <p>Keyboard navigation, screen reader support, WCAG 2.1 AA contrast, reduced motion support. Built for everyone. If you encounter barriers, we want to know.</p>
+                    </div>
+                    <div class="knowledge-card">
+                        <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Public Comments</h4>
+                        <p>Agencies must legally consider substantive public comments before finalizing rules. Your input becomes part of the official record. Be specific, cite evidence, suggest alternatives.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <footer>
+            <div class="footer-content">
+                <div class="zero-harm">
+                    <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Zero Harm & Anti-Coercion Commitment</h4>
+                    <p>The Civic Academy exists to educate and empower, not to manipulate. We provide objective information from official sources. Risk scores are transparent and represent impact magnitude, not value judgments. This platform cannot be used for harassment, surveillance, or political manipulation.</p>
+                </div>
+                <div class="footer-bottom">
+                    <span>© 2025 Democracy Quest. Open source for democracy.</span>
+                    <span><a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a> • <a href="#privacy">Privacy</a> • <a href="#accessibility">Accessibility</a></span>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- Lesson Modal -->
+    <div class="lesson-container" id="lesson-modal">
+        <div class="lesson-content">
+            <div class="lesson-header">
+                <h2 id="lesson-title">How a Bill Becomes Law</h2>
+                <button class="lesson-close" id="lesson-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            </div>
+            <div class="lesson-body" id="lesson-body">
+                <p>The U.S. legislative process is designed to be deliberate and thorough. Understanding how a bill becomes law helps you identify the best opportunities to make your voice heard.</p>
+                
+                <h3>The Legislative Journey</h3>
+                <p>Every law starts as an idea. A member of Congress drafts the idea into a bill, which then goes through a multi-step process before potentially becoming law.</p>
+                
+                <div class="lesson-diagram">
+                    <div class="process-flow">
+                        <div class="process-step"><div class="step-num">1</div><div class="step-title">Introduction</div><div class="step-desc">Bill drafted & introduced</div></div>
+                        <div class="process-step"><div class="step-num">2</div><div class="step-title">Committee</div><div class="step-desc">Review & amendments</div></div>
+                        <div class="process-step"><div class="step-num">3</div><div class="step-title">Floor Vote</div><div class="step-desc">Full chamber debate</div></div>
+                        <div class="process-step"><div class="step-num">4</div><div class="step-title">Other Chamber</div><div class="step-desc">Process repeats</div></div>
+                        <div class="process-step"><div class="step-num">5</div><div class="step-title">Conference</div><div class="step-desc">Reconcile versions</div></div>
+                        <div class="process-step"><div class="step-num">6</div><div class="step-title">President</div><div class="step-desc">Sign or veto</div></div>
+                    </div>
+                </div>
+                
+                <div class="lesson-callout tip">
+                    <h4><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>Pro Tip: Best Time to Act</h4>
+                    <p>The committee stage is often the most influential time for citizen input. Most bills die in committee, so contacting your representatives before committee votes can have significant impact.</p>
+                </div>
+                
+                <h3>Key Terms</h3>
+                <ul>
+                    <li><strong>H.R.</strong> — House Resolution (bill originating in the House)</li>
+                    <li><strong>S.</strong> — Senate bill (originating in the Senate)</li>
+                    <li><strong>Markup</strong> — When a committee amends a bill</li>
+                    <li><strong>Cloture</strong> — Senate procedure to end debate (requires 60 votes)</li>
+                </ul>
+                
+                <div class="lesson-quiz">
+                    <h3>Quick Check</h3>
+                    <p class="quiz-question">When is the BEST time to contact your representative about a bill?</p>
+                    <div class="quiz-options">
+                        <div class="quiz-option" data-answer="a"><span class="quiz-letter">A</span>After it becomes law</div>
+                        <div class="quiz-option" data-answer="b" data-correct="true"><span class="quiz-letter">B</span>During committee review</div>
+                        <div class="quiz-option" data-answer="c"><span class="quiz-letter">C</span>After the President signs it</div>
+                        <div class="quiz-option" data-answer="d"><span class="quiz-letter">D</span>Only during elections</div>
+                    </div>
+                </div>
+            </div>
+            <div class="lesson-footer">
+                <div class="xp-reward"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>+100 XP on completion</div>
+                <button class="btn-complete" id="btn-complete" disabled>Answer Quiz to Complete</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+    (function() {
+        'use strict';
+        
+        const modal = document.getElementById('lesson-modal');
+        const closeBtn = document.getElementById('lesson-close');
+        const completeBtn = document.getElementById('btn-complete');
+        const quizOptions = document.querySelectorAll('.quiz-option');
+        
+        // Open lesson modal
+        document.querySelectorAll('.path-card').forEach(card => {
+            card.addEventListener('click', () => {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+        });
+        
+        // Close modal
+        closeBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+        
+        function closeModal() {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        // Quiz interaction
+        quizOptions.forEach(opt => {
+            opt.addEventListener('click', () => {
+                quizOptions.forEach(o => o.classList.remove('selected', 'correct', 'incorrect'));
+                opt.classList.add('selected');
+                
+                if (opt.dataset.correct === 'true') {
+                    opt.classList.add('correct');
+                    completeBtn.disabled = false;
+                    completeBtn.textContent = 'Complete Lesson (+100 XP)';
+                } else {
+                    opt.classList.add('incorrect');
+                    // Show correct answer
+                    quizOptions.forEach(o => {
+                        if (o.dataset.correct === 'true') o.classList.add('correct');
+                    });
+                    completeBtn.disabled = false;
+                    completeBtn.textContent = 'Continue (+50 XP)';
+                }
+            });
+        });
+        
+        // Complete lesson
+        completeBtn.addEventListener('click', () => {
+            const xp = completeBtn.textContent.includes('100') ? 100 : 50;
+            
+            // Award XP (in real implementation, would call shared function)
+            const popup = document.createElement('div');
+            popup.innerHTML = `<span style="font-size:1.5rem;">🎉</span> +${xp} XP earned!`;
+            popup.style.cssText = `
+                position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                background: linear-gradient(135deg, rgba(252,211,77,0.95), rgba(251,191,36,0.95));
+                color: #030712; padding: 20px 40px; border-radius: 16px; font-weight: 700;
+                font-size: 1.25rem; z-index: 10001; animation: popIn 0.5s ease-out;
+                box-shadow: 0 8px 40px rgba(252,211,77,0.5);
+            `;
+            document.body.appendChild(popup);
+            
+            setTimeout(() => {
+                popup.style.animation = 'popOut 0.3s ease-in forwards';
+                setTimeout(() => { popup.remove(); closeModal(); }, 300);
+            }, 1500);
+        });
+        
+        // Add animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes popIn { from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+            @keyframes popOut { from { opacity: 1; transform: translate(-50%, -50%) scale(1); } to { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } }
+        `;
+        document.head.appendChild(style);
+    })();
+    </script>
+</body>
+</html>
